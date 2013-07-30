@@ -38,7 +38,7 @@ tcache_new(int size) {
 
 void
 tcache_free(struct tcache **tc) {
-        if (tc) {
+        if (tc && (*tc)) {
                 free( (*tc)->data );
                 free( (*tc) );
                 *tc = NULL;
