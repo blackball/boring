@@ -6,10 +6,10 @@
  * and the reference paper:
  * http://www.ics.uci.edu/~eppstein/projects/pairs/Papers/Epp-SODA-98.pdf
  *
- * The original version requires you give feed data points to this structure,
- * which is very space consuming. In fact, what this algorithm need only is
+ * The original version requires you to feed feature points to the structure,
+ * which is very space consuming. In fact, what this algorithm needs only is
  * a distance function, in my version, only the index was required, but this 
- * would make the distance fucntion implementation a little tricky. The 
+ * would make the distance fucntion's implementation a little tricky. The 
  * testing codes in the end will demostrate that.
  *
  * @blackball
