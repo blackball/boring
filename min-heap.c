@@ -15,7 +15,8 @@
 #define RC(i) (i*2 + 2)
 
 /**
- * The root of heap is newly inserted.
+ * ri is a parent in heap. when there's new root settled in heap[ri],
+ * need to re-arrange heap[ri] to make the sub-tree a heap.
  */
 static inline void
 heaptify(int *heap, int n, int ri) {
