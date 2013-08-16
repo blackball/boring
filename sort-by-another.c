@@ -1,5 +1,5 @@
 /**
- * sometimes, we need sort a vector by another vector, that's said, there's rarely 
+ * sometimes, we need sort a vector by another vector, that's said, there's rarely
  * a piece of codes could help.
  *
  * @blackball
@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 /* Swap two items pointed to by A and B using temporary buffer t. */
-#define _QSORT_SWAP(a, b, t)                                            \
+#define _QSORT_SWAP(QSORT_BASE, QSORT_BASE1, a, b, t)                   \
         do {                                                            \
                 ((void)((t = *a), (*a = *b), (*b = t))) ;               \
                 /* swap another array */                                \
@@ -19,17 +19,17 @@
 
 
 #define _QSORT_MAX_THRESH 4
-#define _QSORT_STACK_SIZE   (8 * sizeof(unsigned))
+#define _QSORT_STACK_SIZE (8 * sizeof(unsigned))
 #define _QSORT_PUSH(top, low, high) (((top->_lo = (low)), (top->_hi = (high)), ++top))
-#define _QSORT_POP(low, high, top)  ((--top, (low = top->_lo), (high = top->_hi)))
-#define _QSORT_STACK_NOT_EMPTY  (_stack < _top)
+#define _QSORT_POP(low, high, top) ((--top, (low = top->_lo), (high = top->_hi)))
+#define _QSORT_STACK_NOT_EMPTY (_stack < _top)
 
 /* The main code starts here... */
 #define _QSORT(QSORT_TYPE, QSORT_BASE, QSORT_TYPE1, QSORT_BASE1, QSORT_NELT, QSORT_LT) \
         do {                                                            \
                 QSORT_TYPE *const _base = (QSORT_BASE);                 \
                 const unsigned _elems = (QSORT_NELT);                   \
-                QSORT_TYPE hold;                                        \
+                QSORT_TYPE _hold;                                       \
                 QSORT_TYPE1 hold1;                                      \
                                                                         \
                 /* Don't declare two variables of type QSORT_TYPE in a single \
@@ -56,18 +56,18 @@
                                 QSORT_TYPE *_mid = _lo + ((_hi - _lo) >> 1); \
                                                                         \
                                 if (QSORT_LT (_mid, _lo))               \
-                                        _QSORT_SWAP (_mid, _lo, _hold); \
-                                if (QSORT_LT (_hi, _mid))   {           \
-                                        _QSORT_SWAP (_mid, _hi, _hold); \
+                                        _QSORT_SWAP (QSORT_BASE, QSORT_BASE1, _mid, _lo, _hold); \
+                                if (QSORT_LT (_hi, _mid)) {             \
+                                        _QSORT_SWAP (QSORT_BASE, QSORT_BASE1,_mid, _hi, _hold); \
                                         if (QSORT_LT (_mid, _lo))       \
-                                                _QSORT_SWAP (_mid, _lo, _hold); \
+                                                _QSORT_SWAP (QSORT_BASE, QSORT_BASE1,_mid, _lo, _hold); \
                                 }                                       \
                                                                         \
-                                _left_ptr  = _lo + 1;                   \
+                                _left_ptr = _lo + 1;                    \
                                 _right_ptr = _hi - 1;                   \
                                                                         \
                                 /* Here's the famous ``collapse the walls'' section of quicksort. \
-                                   Gotta like those tight inner loops!  They are the main reason \
+                                   Gotta like those tight inner loops! They are the main reason \
                                    that this algorithm runs much faster than others. */ \
                                 do {                                    \
                                         while (QSORT_LT (_left_ptr, _mid)) \
@@ -77,7 +77,7 @@
                                                 --_right_ptr;           \
                                                                         \
                                         if (_left_ptr < _right_ptr) {   \
-                                                _QSORT_SWAP (_left_ptr, _right_ptr, _hold); \
+                                                _QSORT_SWAP (QSORT_BASE, QSORT_BASE1,_left_ptr, _right_ptr, _hold); \
                                                 if (_mid == _left_ptr)  \
                                                         _mid = _right_ptr; \
                                                 else if (_mid == _right_ptr) \
@@ -92,9 +92,9 @@
                                         }                               \
                                 } while (_left_ptr <= _right_ptr);      \
                                                                         \
-                                /* Set up pointers for next iteration.  First determine whether \
-                                   left and right partitions are below the threshold size.  If so, \
-                                   ignore one or both.  Otherwise, push the larger partition's \
+                                /* Set up pointers for next iteration. First determine whether \
+                                   left and right partitions are below the threshold size. If so, \
+                                   ignore one or both. Otherwise, push the larger partition's \
                                    bounds on the stack and continue sorting the smaller one. */ \
                                                                         \
                                 if (_right_ptr - _lo <= _QSORT_MAX_THRESH) { \
@@ -138,7 +138,7 @@
                                 _thresh = _end_ptr;                     \
                                                                         \
                         /* Find smallest element in first threshold and place it at the \
-                           array's beginning.  This is the smallest array element, \
+                           array's beginning. This is the smallest array element, \
                            and the operation speeds up insertion sort's inner loop. */ \
                                                                         \
                         for (_run_ptr = _tmp_ptr + 1; _run_ptr <= _thresh; ++_run_ptr) \
@@ -146,10 +146,10 @@
                                         _tmp_ptr = _run_ptr;            \
                                                                         \
                         if (_tmp_ptr != _base)                          \
-                                _QSORT_SWAP (_tmp_ptr, _base, _hold);   \
+                                _QSORT_SWAP (QSORT_BASE, QSORT_BASE1, _tmp_ptr, _base, _hold); \
                                                                         \
                         /* Insertion sort, running from left-hand-side  \
-                         * up to right-hand-side.  */                   \
+                         * up to right-hand-side. */                    \
                                                                         \
                         _run_ptr = _base + 1;                           \
                         while (++_run_ptr <= _end_ptr) {                \
@@ -176,22 +176,23 @@
 
 #define SORT_BY_I 0
 #define SORT_BY_D 1
-                
 
 static void
 sort_by(int *di, double *dd, int n, int flag) {
-        
-#define CMP(a , b) ((*a) > (*b))
-        
+
+#define CMP(a , b) ((*a) < (*b))
+
         if (flag == SORT_BY_I) {
                 _QSORT(int, di, double, dd, n, CMP);
         }
         else {
-                _QSORT(double, dd, int, di, n, CMP);;       
+                _QSORT(double, dd, int, di, n, CMP);;
         }
 
 #undef CMP
 }
+
+#define TEST
 
 #ifdef TEST
 
@@ -208,23 +209,22 @@ sort_by(int *di, double *dd, int n, int flag) {
 
 int
 main(int argc, char *argv[]) {
-        const int N = 10;
-        int i;
-        
-        int di[N] = {
-                2,1,3,4,5,6,3,1,3,7,
-        };
-        
-        double dd[N] = {
-                4,5,6,4,3,2,1,5,6,7,
-        };
+#define N 10
 
-        sort_by(di, dd, N, BY_I);
+        int di[N] = {
+        2,1,3,4,5,6,3,1,3,7,
+                };
+
+        double dd[N] = {
+        4,5,6,4,3,2,1,5,6,7,
+                };
+
+        sort_by(di, dd, N, SORT_BY_I);
 
         PRINT(di, N, "%d,");
         PRINT(dd, N, "%lf,");
-        
+
         return 0;
 }
 
-#endif 
+#endif
